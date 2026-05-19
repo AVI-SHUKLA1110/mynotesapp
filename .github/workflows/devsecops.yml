@@ -15,10 +15,10 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Dependency scan (Safety)
+      - name: Dependency scan (pip-audit)
         run: |
-          pip install safety
-          safety check -r requirements.txt
+          pip install pip-audit
+          pip-audit -r requirements.txt
 
       - name: SAST scan (Bandit)
         run: |
