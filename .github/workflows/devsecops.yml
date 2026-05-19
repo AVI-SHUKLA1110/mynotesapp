@@ -1,9 +1,12 @@
 name: DevSecOps Pipeline
-on: [push]
+
+on:
+  push:
 
 jobs:
   security-scan:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -13,7 +16,9 @@ jobs:
           python-version: "3.9"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Dependency scan (pip-audit)
         run: |
@@ -21,11 +26,13 @@ jobs:
           pip-audit -r requirements.txt
 
       - name: SAST scan (Bandit)
+        if: always()
         run: |
           pip install bandit
           bandit -r . -ll
 
       - name: Container scan (Trivy)
+        if: always()
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: fs
