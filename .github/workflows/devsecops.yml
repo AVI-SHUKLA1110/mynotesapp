@@ -1,0 +1,33 @@
+name: DevSecOps Pipeline
+on: [push]
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Dependency scan (Safety)
+        run: |
+          pip install safety
+          safety check -r requirements.txt
+
+      - name: SAST scan (Bandit)
+        run: |
+          pip install bandit
+          bandit -r . -ll
+
+      - name: Container scan (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: HIGH,CRITICAL
